@@ -430,6 +430,10 @@ a:focus-visible {
   font-size: 13px !important;
 }
 
+.done-actions {
+  margin-top: 16px;
+}
+
 .field-meta {
   display: flex;
   justify-content: space-between;
@@ -717,6 +721,14 @@ tbody tr:hover {
   white-space: pre-wrap;
   word-break: break-word;
   max-width: 280px;
+}
+
+.cell-history {
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-width: 260px;
+  font-size: 12.5px;
+  color: var(--muted);
 }
 
 @media (max-width: 480px) {

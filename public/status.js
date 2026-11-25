@@ -12,6 +12,7 @@ const filterSelect = $('filterSelect');
 const exportCsvBtn = $('exportCsvBtn');
 
 let lastData = null;
+let lastHistory = {};
 
 const cached = sessionStorage.getItem('ksat.adminToken');
 if (cached) { tokenInput.value = cached; }
@@ -33,6 +34,32 @@ function formatTime(iso) {
     hour: '2-digit',
     minute: '2-digit',
   });
+}
+
+function formatHistoryEntry(entry) {
+  if (!entry || !entry.aspiration) return '—';
+  const asp = `${entry.aspiration}. ${ASPIRATIONS[entry.aspiration] ?? ''}`;
+  let detail = '';
+  if (entry.aspiration === 2 || entry.aspiration === 3) detail = entry.branch ? ` (${entry.branch})` : '';
+  else if (entry.aspiration === 5) detail = entry.otherText ? `: "${entry.otherText}"` : '';
+  const time = entry.submittedAt ? ` [${formatTime(entry.submittedAt)}]` : '';
+  return `${asp}${detail}${time}`;
+}
+
+function getRowHistory(fullName) {
+  const key = fullName.normalize('NFC').trim().toLowerCase();
+  for (const [k, list] of Object.entries(lastHistory)) {
+    if (k.normalize('NFC').trim().toLowerCase() === key) {
+      return Array.isArray(list) ? list : [];
+    }
+  }
+  return [];
+}
+
+function formatHistoryText(fullName) {
+  const items = getRowHistory(fullName);
+  if (items.length === 0) return '—';
+  return items.map((entry, i) => `Lần trước ${items.length - i}: ${formatHistoryEntry(entry)}`).join('\n');
 }
 
 function setTokenError(msg) {
@@ -163,7 +190,7 @@ function renderTable() {
   if (filtered.length === 0) {
     const tr = document.createElement('tr');
     const td = document.createElement('td');
-    td.colSpan = 6;
+    td.colSpan = 7;
     td.className = 'empty-row';
     td.textContent = 'Không có dòng nào phù hợp bộ lọc.';
     tr.append(td);
@@ -173,6 +200,7 @@ function renderTable() {
 
   for (const { row, num } of filtered) {
     const tr = document.createElement('tr');
+    const histText = formatHistoryText(row.fullName);
     const cells = [
       String(num),
       row.fullName,
@@ -180,12 +208,14 @@ function renderTable() {
       row.aspiration ? `${row.aspiration}. ${ASPIRATIONS[row.aspiration] ?? ''}` : '—',
       describe(row),
       formatTime(row.submittedAt),
+      histText,
     ];
     cells.forEach((text, idx) => {
       const td = document.createElement('td');
       td.textContent = text;
       if (idx === 2) td.className = row.submitted ? 'status-yes' : 'status-no';
       if (idx === 4 && row.aspiration === 5) td.className = 'cell-other-text';
+      if (idx === 6 && histText !== '—') td.className = 'cell-history';
       tr.append(td);
     });
     rowsEl.append(tr);
@@ -195,9 +225,10 @@ function renderTable() {
 function exportCsv() {
   if (!lastData) return;
   const esc = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
-  const header = ['STT', 'Họ tên', 'Trạng thái', 'Nguyện vọng', 'Bưu cục / Nguyện vọng riêng', 'Thời gian gửi'];
+  const header = ['STT', 'Họ tên', 'Trạng thái', 'Nguyện vọng', 'Bưu cục / Nguyện vọng riêng', 'Thời gian gửi', 'Lịch sử trước đó'];
   const lines = [header.map(esc).join(',')];
   lastData.rows.forEach((row, i) => {
+    const hist = formatHistoryText(row.fullName);
     lines.push([
       i + 1,
       row.fullName,
@@ -205,6 +236,7 @@ function exportCsv() {
       row.aspiration ? `${row.aspiration}. ${ASPIRATIONS[row.aspiration] ?? ''}` : '',
       row.submitted ? describe(row) : '',
       row.submittedAt ? new Date(row.submittedAt).toLocaleString('vi-VN') : '',
+      hist === '—' ? '' : hist,
     ].map(esc).join(','));
   });
   const blob = new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
@@ -222,7 +254,11 @@ async function load() {
   if (!token) { setTokenError('Vui lòng nhập mã quản lý.'); return; }
   sessionStorage.setItem('ksat.adminToken', token);
   try {
-    const res = await fetch('/api/status', { headers: { Authorization: `Bearer ${token}` } });
+    const headers = { Authorization: `Bearer ${token}` };
+    const [res, histRes] = await Promise.all([
+      fetch('/api/status', { headers }),
+      fetch('/api/history', { headers }).catch(() => null),
+    ]);
     const body = await res.json();
     if (!res.ok) {
       setTokenError(body.error ?? 'Không tải được trạng thái.');
@@ -230,6 +266,7 @@ async function load() {
       return;
     }
     lastData = body;
+    lastHistory = (histRes && histRes.ok) ? await histRes.json().catch(() => ({})) : {};
     $('summary').textContent = `Đã điền: ${body.done}/${body.total} · Chưa: ${body.total - body.done}`;
     $('summary').hidden = false;
     $('table').hidden = false;

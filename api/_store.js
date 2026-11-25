@@ -4,6 +4,7 @@ import { ROSTER, BRANCHES, normalizeName, canonicalName } from '../public/roster
 const URL = process.env.UPSTASH_REDIS_REST_URL;
 const TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 export const KEY = 'ksat:v1:responses';
+export const HISTORY_KEY = 'ksat:v1:history';
 
 /**
  * Boundary duy nhất gọi Upstash REST. Có thể patch trong test để mock
@@ -81,20 +82,18 @@ export async function handleSubmit(req, res, deps = {}) {
 
   const call = deps.upstashFetch ?? upstashFetch;
   try {
+    // Cho phép gửi lại nhiều lần: ghi đè kết quả mới, nhưng lưu bản cũ vào
+    // danh sách lịch sử riêng (không xóa dữ liệu cũ).
     const existingRaw = await call(['HGET', KEY, field]);
     if (existingRaw) {
-      let existing;
-      try { existing = JSON.parse(existingRaw); } catch { existing = null; }
-      return json(res, 409, { error: 'Bạn đã gửi nguyện vọng này rồi', existing });
+      await call(['LPUSH', `${HISTORY_KEY}:${field}`, existingRaw]);
     }
-    const created = await call(['HSETNX', KEY, field, JSON.stringify(record)]);
-    if (Number(created) !== 1) {
-      const raceRaw = await call(['HGET', KEY, field]);
-      let existing;
-      try { existing = JSON.parse(raceRaw); } catch { existing = null; }
-      return json(res, 409, { error: 'Bạn đã gửi nguyện vọng này rồi', existing });
-    }
-    return json(res, 201, { ok: true, fullName: record.fullName });
+    await call(['HSET', KEY, field, JSON.stringify(record)]);
+    return json(res, 200, {
+      ok: true,
+      updated: Boolean(existingRaw),
+      fullName: record.fullName,
+    });
   } catch (err) {
     console.error('submit error:', err.message);
     return json(res, 503, { error: 'Dịch vụ lưu trữ tạm thời không sẵn sàng' });

@@ -12,6 +12,7 @@ const clearAspBtn = $('clearAspBtn');
 const aspClearWrap = $('asp-clear-wrap');
 const doneBox = $('done');
 const doneMsg = $('done-msg');
+const editAgainBtn = $('editAgainBtn');
 
 // Gửi qua API thật (xem tests/verify-server.mjs để mock boundary khi test).
 
@@ -217,6 +218,14 @@ function showDone(message) {
   doneBox.hidden = false;
 }
 
+editAgainBtn?.addEventListener('click', () => {
+  doneBox.hidden = true;
+  if (headerCard) headerCard.hidden = false;
+  form.hidden = false;
+  clearError('err-global');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
 async function send(data) {
   const res = await fetch('/api/submit', {
     method: 'POST',
@@ -235,12 +244,16 @@ form.addEventListener('submit', async (e) => {
   submitBtn.disabled = true;
   try {
     const { status, body } = await send(data);
-    if (status === 201) {
+    if (status === 200 || status === 201) {
       let detail = ASPIRATIONS[data.aspiration];
       if (data.branch) detail += ` (${data.branch})`;
       if (data.otherText) detail += ` — "${data.otherText}"`;
-      showDone(`Cảm ơn ${data.fullName}. Nguyện vọng đã được ghi nhận: ${detail}.`);
+      const prefix = body?.updated
+        ? `Đã cập nhật nguyện vọng cho ${data.fullName}`
+        : `Cảm ơn ${data.fullName}. Nguyện vọng đã được ghi nhận`;
+      showDone(`${prefix}: ${detail}.`);
     } else if (status === 409) {
+      // Trường hợp cũ (server bản cũ) — giữ lại để tương thích.
       const old = body?.existing;
       const oldLabel = old ? ASPIRATIONS[old.aspiration] ?? 'đã gửi' : 'đã gửi';
       showDone(`Đã gửi: ${data.fullName} đã đăng ký nguyện vọng ${oldLabel} trước đó. Không cần gửi lại.`);

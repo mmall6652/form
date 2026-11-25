@@ -84,17 +84,26 @@ try {
   await pick(dup.page, '1');
   await submit(dup.page);
   const dupMsg = await dup.page.$eval('#done-msg', (e) => e.textContent);
-  assert(/đã đăng ký nguyện vọng/i.test(dupMsg), 'gửi lại cùng tên -> báo đã gửi (409)');
+  assert(/Đã cập nhật nguyện vọng/i.test(dupMsg), 'gửi lại cùng tên -> cập nhật thành công (200), không bị chặn');
   await dup.page.close();
 
-  // Thêm 1 người NV1 để phủ cả 2 nhánh (NV1 + NV2) ở trang status.
-  const nv1 = await newPage('/');
-  await nv1.page.$eval('#fullName', (e) => { e.value = 'Văn Bá Thảo'; });
-  await pick(nv1.page, '1');
-  await submit(nv1.page);
-  assert((await nv1.page.$eval('#done-msg', (e) => e.textContent)).includes('hàng nặng'),
-    'gửi NV1 thành công');
-  await nv1.page.close();
+  // Lịch sử phải giữ bản cũ (NV2 Hoà Vang) bên cạnh bản mới (NV1).
+  const hist = await fetch(`${BASE}/api/history`, { headers: { Authorization: `Bearer ${TOKEN}` } }).then((r) => r.json());
+  const entries = Object.entries(hist).find(([k]) => k.toLowerCase().includes('huỳnh thế phương'))?.[1] ?? [];
+  assert(entries.length === 1 && entries[0].aspiration === 2 && entries[0].branch === 'Hoà Vang (bưu tá)',
+    'lịch sử giữ bản cũ (NV2/Hoà Vang), không xoá');
+
+  // Thêm 1 người NV2 để phủ cả 2 nhánh (NV1 + NV2) ở trang status, và kiểm tra nút điền lại.
+  const nv2 = await newPage('/');
+  await nv2.page.$eval('#fullName', (e) => { e.value = 'Văn Bá Thảo'; });
+  await pick(nv2.page, '2');
+  await nv2.page.$eval('input[name=branch][value="Hoà Vang (bưu tá)"]', (e) => e.click());
+  await submit(nv2.page);
+  assert((await nv2.page.$eval('#done-msg', (e) => e.textContent)).includes('hàng xuất'),
+    'gửi NV2 cho Văn Bá Thảo thành công');
+  await nv2.page.click('#editAgainBtn');
+  assert(await nv2.page.$eval('#survey', (e) => !e.hidden), 'bấm Điền lại / Cập nhật mở lại form');
+  await nv2.page.close();
 
   // ---- Status ----
   const st = await newPage('/status.html');
@@ -117,10 +126,16 @@ try {
   assert(summary.includes('Đã điền: 2/22'), `status tổng hợp 2/22 (${summary})`);
   const huynh = await sp.$$eval('#rows tr', (rows) => {
     const r = rows.find((x) => x.children[1].textContent === 'Huỳnh Thế Phương');
+    return [r.children[2].textContent, r.children[3].textContent, r.children[4].textContent, r.children[6].textContent];
+  });
+  assert(huynh[0] === 'Đã điền' && huynh[1].includes('hàng nặng') && huynh[2] === '—' && huynh[3].includes('Hoà Vang (bưu tá)'),
+    'status: Huỳnh Thế Phương = Đã điền, NV1 mới, vẫn giữ lịch sử NV2 Hoà Vang (bưu tá)');
+  const vanBaThao = await sp.$$eval('#rows tr', (rows) => {
+    const r = rows.find((x) => x.children[1].textContent === 'Văn Bá Thảo');
     return [r.children[2].textContent, r.children[3].textContent, r.children[4].textContent];
   });
-  assert(huynh[0] === 'Đã điền' && huynh[2] === 'Hoà Vang (bưu tá)' && huynh[1].includes('hàng xuất'),
-    'status: Huỳnh Thế Phương = Đã điền, NV2, Hoà Vang (bưu tá)');
+  assert(vanBaThao[0] === 'Đã điền' && vanBaThao[1].includes('hàng xuất') && vanBaThao[2] === 'Hoà Vang (bưu tá)',
+    'status: Văn Bá Thảo = Đã điền, NV2, Hoà Vang (bưu tá)');
   const chua = await sp.$$eval('#rows tr', (rows) => rows.filter((x) => x.children[2].textContent === 'Chưa').length);
   assert(chua === 20, 'status: 20 người Chưa');
   assert(st.errors.length === 0, `status không lỗi JS (${st.errors.join('; ') || 'none'})`);
