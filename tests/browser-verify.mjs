@@ -39,14 +39,17 @@ try {
 
   await pick(page, '2');
   const notice = await page.$eval('#conditional .notice', (e) => e.textContent);
-  assert(notice === 'Bộ phận này đang lên kế hoạch bạn có thể xuống 1 trong 4 bưu cục trên làm tạm vài tháng không.',
+  assert(notice === 'Bộ phận này đang lên kế hoạch bạn có thể xuống 1 trong 5 bưu cục trên làm tạm vài tháng không.',
     'NV2 thông báo đúng từng chữ');
   const branches = await page.$$eval('input[name=branch]', (ns) => ns.map((n) => n.value));
-  assert(branches.join('|') === 'Hoà Vang|Hoà Quý|Hoà Xuân|Liên Chiểu', 'NV2 4 bưu cục đúng');
+  assert(
+    branches.join('|') === 'Hoà Vang (bưu tá)|Hoà Quý (bưu tá)|Hoà Xuân (bưu tá)|Liên Chiểu (bưu tá)|Hải Vân (Bưu tá, Khai thác)',
+    'NV2 5 bưu cục đúng'
+  );
 
   await pick(page, '3');
-  assert((await page.$$('input[name=branch]')).length === 4 && !(await page.$('.notice')),
-    'NV3 4 bưu cục, không có notice NV2');
+  assert((await page.$$('input[name=branch]')).length === 5 && !(await page.$('.notice')),
+    'NV3 5 bưu cục, không có notice NV2');
 
   await pick(page, '5');
   assert(Boolean(await page.$('#otherText')), 'NV5 textarea hiện');
@@ -62,13 +65,13 @@ try {
   assert((await page.$eval('#err-name', (e) => e.textContent)).includes('đúng trong danh sách'),
     'tên lạ bị chặn inline');
 
-  // gửi thật NV2 + Hoà Vang
+  // gửi thật NV2 + Hoà Vang (bưu tá)
   await page.$eval('#fullName', (e) => { e.value = 'Huỳnh Thế Phương'; });
   await pick(page, '2');
   await submit(page);
   assert((await page.$eval('#err-branch', (e) => e.textContent)).includes('chọn một bưu cục'),
     'NV2 thiếu bưu cục -> lỗi inline');
-  await page.$eval('input[name=branch][value="Hoà Vang"]', (e) => e.click());
+  await page.$eval('input[name=branch][value="Hoà Vang (bưu tá)"]', (e) => e.click());
   await submit(page);
   const doneMsg = await page.$eval('#done-msg', (e) => e.textContent);
   assert(doneMsg.includes('Huỳnh Thế Phương') && doneMsg.includes('hàng xuất'),
@@ -116,8 +119,8 @@ try {
     const r = rows.find((x) => x.children[1].textContent === 'Huỳnh Thế Phương');
     return [r.children[2].textContent, r.children[3].textContent, r.children[4].textContent];
   });
-  assert(huynh[0] === 'Đã điền' && huynh[2] === 'Hoà Vang' && huynh[1].includes('hàng xuất'),
-    'status: Huỳnh Thế Phương = Đã điền, NV2, Hoà Vang');
+  assert(huynh[0] === 'Đã điền' && huynh[2] === 'Hoà Vang (bưu tá)' && huynh[1].includes('hàng xuất'),
+    'status: Huỳnh Thế Phương = Đã điền, NV2, Hoà Vang (bưu tá)');
   const chua = await sp.$$eval('#rows tr', (rows) => rows.filter((x) => x.children[2].textContent === 'Chưa').length);
   assert(chua === 20, 'status: 20 người Chưa');
   assert(st.errors.length === 0, `status không lỗi JS (${st.errors.join('; ') || 'none'})`);

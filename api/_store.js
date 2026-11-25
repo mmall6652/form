@@ -1,5 +1,5 @@
 // Dùng chung bởi api/submit.js và api/status.js.
-import { ROSTER, normalizeName, canonicalName } from '../public/roster.js';
+import { ROSTER, BRANCHES, normalizeName, canonicalName } from '../public/roster.js';
 
 const URL = process.env.UPSTASH_REDIS_REST_URL;
 const TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
@@ -11,7 +11,9 @@ export const KEY = 'ksat:v1:responses';
  */
 export async function upstashFetch(command) {
   if (!URL || !TOKEN) {
-    throw new Error('Thiếu UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN');
+    const missing = [!URL && 'UPSTASH_REDIS_REST_URL', !TOKEN && 'UPSTASH_REDIS_REST_TOKEN']
+      .filter(Boolean).join(', ');
+    throw new Error(`Thiếu biến môi trường: ${missing}`);
   }
   const res = await fetch(URL, {
     method: 'POST',
@@ -39,12 +41,11 @@ export function validateSubmission(input) {
   if (!name) return { error: 'Vui lòng chọn họ tên đúng trong danh sách.' };
   const aspiration = Number(input?.aspiration);
   if (![1, 2, 3, 4, 5].includes(aspiration)) return { error: 'Nguyện vọng không hợp lệ.' };
-  const branches = ['Hoà Vang', 'Hoà Quý', 'Hoà Xuân', 'Liên Chiểu'];
   let branch = null;
   let otherText = null;
   if (aspiration === 2 || aspiration === 3) {
     branch = input?.branch ?? null;
-    if (!branches.includes(branch)) return { error: 'Vui lòng chọn một bưu cục.' };
+    if (!BRANCHES.includes(branch)) return { error: 'Vui lòng chọn một bưu cục.' };
   }
   if (aspiration === 5) {
     otherText = String(input?.otherText ?? '').trim();

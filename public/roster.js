@@ -24,18 +24,24 @@ export const ROSTER = [
   'Võ Bảo Long',
 ];
 
-export const BRANCHES = ['Hoà Vang', 'Hoà Quý', 'Hoà Xuân', 'Liên Chiểu'];
+export const BRANCHES = [
+  'Hoà Vang (bưu tá)',
+  'Hoà Quý (bưu tá)',
+  'Hoà Xuân (bưu tá)',
+  'Liên Chiểu (bưu tá)',
+  'Hải Vân (Bưu tá, Khai thác)',
+];
 
 export const ASPIRATIONS = {
   1: 'Ở lại Hub Đà Nẵng làm hàng nặng',
   2: 'Làm hàng xuất Hà Nội & HCM',
-  3: 'Về Bưu cục Hoà Vang / Hoà Quý / Hoà Xuân / Liên Chiểu',
+  3: 'Về Bưu cục Hoà Vang / Hoà Quý / Hoà Xuân / Liên Chiểu / Hải Vân',
   4: 'Về TTKT 2',
   5: 'Khác',
 };
 
 export const NOTICE_2 =
-  'Bộ phận này đang lên kế hoạch bạn có thể xuống 1 trong 4 bưu cục trên làm tạm vài tháng không.';
+  'Bộ phận này đang lên kế hoạch bạn có thể xuống 1 trong 5 bưu cục trên làm tạm vài tháng không.';
 
 export function normalizeName(value) {
   return String(value ?? '').normalize('NFC').trim().replace(/\s+/g, ' ');

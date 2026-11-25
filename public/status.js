@@ -87,7 +87,8 @@ function renderBreakdown(data) {
     if ((aspNum === 2 || aspNum === 3) && count > 0) {
       const pills = document.createElement('div');
       pills.className = 'branch-pills';
-      for (const b of BRANCHES) {
+      const branchKeys = [...new Set([...BRANCHES, ...matching.map((r) => r.branch).filter(Boolean)])];
+      for (const b of branchKeys) {
         const bCount = matching.filter((r) => r.branch === b).length;
         if (bCount > 0) {
           const pill = document.createElement('span');
