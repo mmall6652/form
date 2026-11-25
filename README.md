@@ -36,3 +36,10 @@ node tests/verify-server.mjs   # mock Upstash tại boundary, chạy :3100
 # curl thử /api/submit, /api/status như trong plan
 ```
 # form
+
+## Deploy note
+
+Sau khi thêm/sửa Environment Variables trên Vercel (UPSTASH_REDIS_REST_URL,
+UPSTASH_REDIS_REST_TOKEN, ADMIN_TOKEN), cần Redeploy để áp dụng. Commit này
+được tạo để trigger build lại sau khi cấu hình admin token.
+
