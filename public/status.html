@@ -3,8 +3,9 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="/favicon.svg" />
-  <title>Trạng thái đăng ký - Hub Đà Nẵng</title>
+  <title>Kết quả khảo sát (Quản lý) - Hub Đà Nẵng</title>
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
@@ -12,8 +13,8 @@
     <header class="card header-card">
       <div class="header-stripe" aria-hidden="true"></div>
       <div class="header-body">
-        <h1>Trạng thái đăng ký</h1>
-        <p class="sub">Danh sách 22 nhân viên · Dữ liệu cá nhân, chỉ người có token xem được</p>
+        <h1>Kết quả khảo sát nguyện vọng</h1>
+        <p class="sub">Trang ẩn dành riêng cho quản lý · Danh sách 22 nhân viên Hub Đà Nẵng</p>
       </div>
     </header>
 
@@ -29,9 +30,41 @@
       <p class="error" id="err" role="alert"></p>
     </section>
 
-    <section class="card table-card" id="resultsCard" hidden>
-      <div class="table-card-head">
+    <section class="block card" id="overviewCard" hidden>
+      <div class="overview-head">
         <p class="summary" id="summary" hidden></p>
+        <div class="progress-track" aria-hidden="true">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+      <h2 class="section-heading">Thống kê theo nguyện vọng</h2>
+      <div id="breakdown" class="breakdown"></div>
+    </section>
+
+    <section class="block card" id="otherListCard" hidden>
+      <div class="section-head-row">
+        <h2 class="section-heading">Nguyện vọng riêng (chọn "Khác")</h2>
+        <span class="count-pill" id="otherCount">0</span>
+      </div>
+      <div id="otherList" class="other-list"></div>
+    </section>
+
+    <section class="card table-card" id="resultsCard" hidden>
+      <div class="table-card-head table-controls">
+        <div class="gf-field gf-field-search">
+          <input id="searchInput" type="text" autocomplete="off" placeholder="Tìm theo họ tên hoặc nội dung..." />
+        </div>
+        <select id="filterSelect" class="gf-select" aria-label="Lọc kết quả">
+          <option value="all">Tất cả</option>
+          <option value="done">Đã điền</option>
+          <option value="pending">Chưa điền</option>
+          <option value="1">1. Hàng nặng</option>
+          <option value="2">2. Hàng xuất</option>
+          <option value="3">3. Về Bưu cục</option>
+          <option value="4">4. Về TTKT 2</option>
+          <option value="5">5. Khác (nguyện vọng riêng)</option>
+        </select>
+        <button id="exportCsvBtn" type="button" class="btn-secondary">Xuất CSV</button>
       </div>
       <div class="table-scroll">
         <table id="table" hidden>
@@ -41,7 +74,8 @@
               <th>Họ tên</th>
               <th>Trạng thái</th>
               <th>Nguyện vọng</th>
-              <th>Bưu cục / Khác</th>
+              <th>Bưu cục / Nguyện vọng riêng</th>
+              <th>Thời gian</th>
             </tr>
           </thead>
           <tbody id="rows"></tbody>

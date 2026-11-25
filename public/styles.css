@@ -424,6 +424,30 @@ a:focus-visible {
   margin-bottom: 0 !important;
 }
 
+.done-note {
+  margin: 0 !important;
+  color: var(--muted) !important;
+  font-size: 13px !important;
+}
+
+.field-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.field-meta .hint {
+  margin: 0;
+}
+
+.char-count {
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
 .quiet-link {
   color: #1a73e8;
   text-decoration: none;
@@ -517,6 +541,182 @@ tbody tr:hover {
 
 .status-no {
   color: var(--muted);
+}
+
+/* Overview & Breakdown */
+.overview-head {
+  margin-bottom: 18px;
+}
+
+.progress-track {
+  margin-top: 10px;
+  height: 8px;
+  background: #ede7f6;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--accent);
+  border-radius: 999px;
+  transition: width 0.25s ease;
+}
+
+.section-heading {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.section-head-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.section-head-row .section-heading {
+  margin: 0;
+}
+
+.count-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: var(--accent-tint);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.breakdown-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13.5px;
+  margin-bottom: 5px;
+}
+
+.breakdown-stat {
+  color: var(--muted);
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.breakdown-track {
+  height: 6px;
+  background: #f1f3f4;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.breakdown-bar {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 999px;
+  transition: width 0.25s ease;
+}
+
+.branch-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 7px;
+}
+
+.branch-pill {
+  font-size: 12px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: #f1f3f4;
+  color: var(--ink);
+}
+
+/* Custom "Khác" responses list */
+.other-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.other-item {
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--accent);
+  border-radius: 6px;
+  padding: 12px 14px;
+  background: #fafafa;
+}
+
+.other-item-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.other-time {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.other-item-text {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--ink);
+  font-size: 14px;
+}
+
+.empty-note, .empty-row {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13.5px;
+  text-align: center;
+  padding: 14px 8px;
+}
+
+/* Table Filter Controls */
+.table-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.gf-field-search {
+  flex: 1 1 200px;
+}
+
+.gf-select {
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  font: inherit;
+  font-size: 13.5px;
+  color: var(--ink);
+  background: #fff;
+  cursor: pointer;
+}
+
+.cell-other-text {
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-width: 280px;
 }
 
 @media (max-width: 480px) {

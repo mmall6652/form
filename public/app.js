@@ -113,17 +113,30 @@ function renderConditional() {
     const textarea = document.createElement('textarea');
     textarea.id = 'otherText';
     textarea.name = 'otherText';
-    textarea.placeholder = 'Câu trả lời của bạn';
+    textarea.rows = 3;
+    textarea.maxLength = 1000;
+    textarea.placeholder = 'Nhập chi tiết nguyện vọng riêng của bạn...';
+    const meta = document.createElement('div');
+    meta.className = 'field-meta';
+    const hint = document.createElement('span');
+    hint.className = 'hint';
+    hint.textContent = 'Nội dung này sẽ được gửi riêng cho quản lý xem xét.';
+    const counter = document.createElement('span');
+    counter.className = 'char-count';
+    counter.textContent = '0 / 1000';
+    meta.append(hint, counter);
+
     textarea.addEventListener('input', () => {
       textarea.classList.remove('is-invalid');
       clearError('err-other');
+      counter.textContent = `${textarea.value.length} / 1000`;
     });
     field.append(textarea);
     const err = document.createElement('p');
     err.className = 'error';
     err.id = 'err-other';
     err.setAttribute('role', 'alert');
-    conditional.append(label, field, err);
+    conditional.append(label, field, meta, err);
   } else {
     conditional.hidden = true;
   }
@@ -223,7 +236,10 @@ form.addEventListener('submit', async (e) => {
   try {
     const { status, body } = await send(data);
     if (status === 201) {
-      showDone(`Cảm ơn ${data.fullName}. Nguyện vọng đã được ghi nhận: ${ASPIRATIONS[data.aspiration]}.`);
+      let detail = ASPIRATIONS[data.aspiration];
+      if (data.branch) detail += ` (${data.branch})`;
+      if (data.otherText) detail += ` — "${data.otherText}"`;
+      showDone(`Cảm ơn ${data.fullName}. Nguyện vọng đã được ghi nhận: ${detail}.`);
     } else if (status === 409) {
       const old = body?.existing;
       const oldLabel = old ? ASPIRATIONS[old.aspiration] ?? 'đã gửi' : 'đã gửi';
