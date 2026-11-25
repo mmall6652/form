@@ -40,3 +40,8 @@ export async function handleStatus(req, res, deps = {}) {
     return res.end(JSON.stringify({ error: 'Dịch vụ lưu trữ tạm thời không sẵn sàng' }));
   }
 }
+
+// Vercel Function entry point — bắt buộc phải có default export.
+export default function handler(req, res) {
+  return handleStatus(req, res);
+}
