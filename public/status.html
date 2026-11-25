@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="/favicon.svg" />
+  <title>Trạng thái đăng ký - Hub Đà Nẵng</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <main class="wrap wrap-wide">
+    <header class="card header-card">
+      <div class="header-stripe" aria-hidden="true"></div>
+      <div class="header-body">
+        <h1>Trạng thái đăng ký</h1>
+        <p class="sub">Danh sách 22 nhân viên · Dữ liệu cá nhân, chỉ người có token xem được</p>
+      </div>
+    </header>
+
+    <section class="block card">
+      <label class="q-title" for="token">Mã quản lý</label>
+      <div class="gf-field gf-field-short">
+        <input id="token" type="password" autocomplete="off" placeholder="Nhập ADMIN_TOKEN" />
+      </div>
+      <div class="toolbar">
+        <button id="loadBtn" type="button" class="btn-primary">Xem trạng thái</button>
+        <button id="refreshBtn" type="button" class="btn-secondary">Làm mới</button>
+      </div>
+      <p class="error" id="err" role="alert"></p>
+    </section>
+
+    <section class="card table-card" id="resultsCard" hidden>
+      <div class="table-card-head">
+        <p class="summary" id="summary" hidden></p>
+      </div>
+      <div class="table-scroll">
+        <table id="table" hidden>
+          <thead>
+            <tr>
+              <th>STT</th>
+              <th>Họ tên</th>
+              <th>Trạng thái</th>
+              <th>Nguyện vọng</th>
+              <th>Bưu cục / Khác</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer class="gf-footer gf-footer-split">
+      <a class="quiet-link" href="/">← Về biểu mẫu đăng ký</a>
+    </footer>
+  </main>
+  <script type="module" src="/status.js"></script>
+</body>
+</html>

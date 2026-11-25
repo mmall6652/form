@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="/favicon.svg" />
+  <title>Đăng ký nguyện vọng - Hub Đà Nẵng</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <main class="wrap">
+    <header class="card header-card">
+      <div class="header-stripe" aria-hidden="true"></div>
+      <div class="header-body">
+        <h1>Đăng ký nguyện vọng</h1>
+        <p class="sub">Hub Đà Nẵng · Mỗi người gửi một lần duy nhất</p>
+      </div>
+      <div class="header-foot">
+        <p class="req-legend"><span class="req">*</span> Biểu thị câu hỏi bắt buộc</p>
+      </div>
+    </header>
+
+    <form id="survey" novalidate>
+      <section class="block card" id="card-name">
+        <label class="q-title" for="fullName">Họ và tên <span class="req">*</span></label>
+        <div class="gf-field gf-field-short">
+          <input id="fullName" name="fullName" list="roster" autocomplete="off"
+                 placeholder="Câu trả lời của bạn" />
+        </div>
+        <datalist id="roster"></datalist>
+        <p class="hint">Gõ hoặc chọn đúng họ tên trong danh sách 22 nhân viên.</p>
+        <p class="error" id="err-name" role="alert"></p>
+      </section>
+
+      <section class="block card" id="card-asp">
+        <fieldset>
+          <legend class="q-title">Nguyện vọng <span class="req">*</span></legend>
+          <div id="aspirations" class="options"></div>
+        </fieldset>
+        <div class="card-actions" id="asp-clear-wrap" hidden>
+          <button type="button" class="btn-text btn-clear-choice" id="clearAspBtn">Xóa lựa chọn</button>
+        </div>
+        <p class="error" id="err-asp" role="alert"></p>
+      </section>
+
+      <section class="block card conditional" id="conditional" hidden></section>
+
+      <p class="error global" id="err-global" role="alert"></p>
+
+      <div class="gf-actions">
+        <button type="submit" id="submitBtn" class="btn-primary">Gửi nguyện vọng</button>
+        <button type="button" id="clearBtn" class="btn-text">Xóa hết câu trả lời</button>
+      </div>
+    </form>
+
+    <section id="done" class="card header-card done" hidden>
+      <div class="header-stripe" aria-hidden="true"></div>
+      <div class="done-body">
+        <h2>Đã ghi nhận</h2>
+        <p id="done-msg"></p>
+        <p class="done-links"><a class="quiet-link" href="/status.html">Xem trạng thái</a></p>
+      </div>
+    </section>
+
+    <footer class="gf-footer">
+      <p>Biểu mẫu nội bộ Hub Đà Nẵng · Không gửi mật khẩu qua biểu mẫu.</p>
+    </footer>
+  </main>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
